@@ -398,6 +398,27 @@ def upload(request, task_id, vm_id, dataset_id):
     else:
         return JsonResponse({"status": 1, "message": "GET is not allowed here."})
 
+@check_permissions
+@check_resources_exist("json")
+def add_upload(request, task_id, vm_id):
+    if request.method == "GET":
+        if not task_id or task_id is None or task_id == 'None':
+            return JsonResponse({"status": 1, "message": "Please specify the associated task_id."})
+        
+        if not software:
+            return JsonResponse({'status': 1, 'message': 'Failed to create a new Software.'},
+                                status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        context = {
+            "task": task_id,
+            "vm_id": vm_id,
+            "upload": {
+                "dataset": upload['software']
+            }
+        }
+        return JsonResponse({"status": 0, "message": "ok", "context": context})
+    else:
+        return JsonResponse({"status": 1, "message": "POST is not allowed here."})
 
 @check_permissions
 @check_resources_exist("json")
