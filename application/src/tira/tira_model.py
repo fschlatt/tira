@@ -326,6 +326,9 @@ def get_users_vms():
     """ Return the users list. """
     return model.get_users_vms()
 
+def add_upload(task_id, vm_id):
+    """" Add empty new upload"""
+    return model.add_upload(task_id, vm_id)
 
 def add_uploaded_run(task_id, vm_id, dataset_id, uploaded_file):
     """ Add the uploaded file as a new result and return it """

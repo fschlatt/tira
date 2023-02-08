@@ -1089,6 +1089,16 @@ class HybridDatabase(object):
         open(run_dir / 'size.txt', 'w').write(f"0\n{size}\n{lines}\n{files}\n{dirs}")
         open(run_dir / 'file-list.txt', 'w').write(self._list_files(str(output_dir)))
 
+    def add_upload(self, task_id: str, vm_id: str):
+        # Add to database
+        upload = modeldb.Upload.objects.get(vm__vm_id=vm_id, task__task_id=task_id)
+        upload.last_edit_date = now()
+        upload.save()
+
+        return {"task_id": upload.task.task_id, "vm_id": upload.vm.vm_id,
+                "dataset": None if not upload.dataset else upload.dataset.dataset_id,
+                "last_edit": upload.last_edit_date}
+
     def add_uploaded_run(self, task_id, vm_id, dataset_id, uploaded_file):
         # First add to data
         new_id = get_tira_id()

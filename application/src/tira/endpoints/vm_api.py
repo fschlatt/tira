@@ -405,15 +405,16 @@ def add_upload(request, task_id, vm_id):
         if not task_id or task_id is None or task_id == 'None':
             return JsonResponse({"status": 1, "message": "Please specify the associated task_id."})
         
-        if not software:
-            return JsonResponse({'status': 1, 'message': 'Failed to create a new Software.'},
+        upload = model.add_upload(task_id, vm_id)
+        if not upload:
+            return JsonResponse({'status': 1, 'message': 'Failed to create a new Upload.'},
                                 status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
         context = {
             "task": task_id,
             "vm_id": vm_id,
             "upload": {
-                "dataset": upload['software']
+                "dataset": upload['dataset']
             }
         }
         return JsonResponse({"status": 0, "message": "ok", "context": context})
