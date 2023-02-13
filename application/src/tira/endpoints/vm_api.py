@@ -413,9 +413,7 @@ def add_upload(request, task_id, vm_id):
         context = {
             "task": task_id,
             "vm_id": vm_id,
-            "upload": {
-                "dataset": upload['dataset']
-            }
+            "upload": upload
         }
         return JsonResponse({"status": 0, "message": "ok", "context": context})
     else:

@@ -1090,14 +1090,17 @@ class HybridDatabase(object):
         open(run_dir / 'file-list.txt', 'w').write(self._list_files(str(output_dir)))
 
     def add_upload(self, task_id: str, vm_id: str):
-        # Add to database
-        upload = modeldb.Upload.objects.get(vm__vm_id=vm_id, task__task_id=task_id)
-        upload.last_edit_date = now()
-        upload.save()
+        upload_group = modeldb.UploadGroup.objects.create(
+            vm=modeldb.VirtualMachine.objects.get(vm_id=vm_id),
+            task=modeldb.Task.objects.get(task_id=task_id),
+            display_name=randomname.get_name()
+        )
 
-        return {"task_id": upload.task.task_id, "vm_id": upload.vm.vm_id,
-                "dataset": None if not upload.dataset else upload.dataset.dataset_id,
-                "last_edit": upload.last_edit_date}
+        return {
+            "task_id": upload_group.task.task_id,
+            "vm_id": upload_group.vm.vm_id,
+            "display_name": upload_group.display_name
+        }
 
     def add_uploaded_run(self, task_id, vm_id, dataset_id, uploaded_file):
         # First add to data

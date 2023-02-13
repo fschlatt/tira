@@ -174,6 +174,14 @@ class Software(models.Model):
     class Meta:
         unique_together = (("software_id", "vm", 'task'),)
 
+class UploadGroup(models.Model):
+    upload_group_id = models.AutoField(primary_key=True)
+    vm = models.ForeignKey(VirtualMachine, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True)
+    display_name = models.TextField(default="")
+    description = models.TextField(default="")
+    paper_link = models.TextField(default="")
+    deleted = models.BooleanField(default=False)
 
 class Upload(models.Model):
     """ Because I've fallen over this several times:
@@ -184,6 +192,7 @@ class Upload(models.Model):
     vm = models.ForeignKey(VirtualMachine, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True)
     dataset = models.ForeignKey(Dataset, on_delete=models.SET_NULL, null=True)
+    upload_group = models.ForeignKey(UploadGroup, on_delete=models.RESTRICT, null=True, default=None)
     last_edit_date = models.CharField(max_length=150)
 
     class Meta:

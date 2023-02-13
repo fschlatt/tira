@@ -1,13 +1,13 @@
 <template>
 <button class="uk-button uk-button-default uk-button-small" :class="{ 'uk-button-primary': !showUploadForm, 'tira-button-selected': showUploadForm}"
-        @click="showUploadForm = true">
-    Add Upload <font-awesome-icon icon="fas fa-folder-plus" /></button>
+    @click="addUpload()">
+    Add Uploads <font-awesome-icon icon="fas fa-folder-plus" /></button> 
+
 <button v-for="run_id in filterUploadRuns"
         class="uk-button uk-button-default uk-button-small uk-margin-small-horizontal"
-        @click="selectedRunId=run_id ; showUploadForm=false"
+        @click="selectedRunId=run_id ; showUploadForm=true"
         :class="{ 'tira-button-selected': true }">
          {{ run_id }} </button>
-
 
 <div class="uk-card uk-card-body uk-card-default uk-card-small">
 <form v-if="showUploadForm" class="upload_form">
@@ -80,7 +80,7 @@ export default {
     emits: ['addNotification', 'pollEvaluations', 'removeRun'],
     data() {
       return {
-        showUploadForm: true,
+        showUploadForm: false,
         uploadDataset: '',
         uploadFormError: '',
         fileHandle: null,
@@ -88,6 +88,25 @@ export default {
       }
     },
     methods: {
+        async get(url) {
+            const response = await fetch(url)
+            if (!response.ok) {
+                throw new Error(`Error fetching endpoint: ${url} with ${response.status}`);
+            }
+            let results = await response.json()
+            if (results.status === 1) {
+                throw new Error(`${results.message}`);
+            }
+            return results
+        },
+        addUpload() {
+            this.showUploadForm=true
+            this.get(`/task/${this.taskid}/vm/${this.userid}/add_software/upload`).then(message => {
+                this.$emit('addUpload')
+            }).catch(error => {
+                this.$emit('addNotification', 'error', error.message)
+            })
+        },
         async fileUpload() {  // async
             console.log(this.uploading, this.uploadDataset, this.fileHandle)
             // TODO: when successful, add new entry to uploads.runs
