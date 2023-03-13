@@ -182,8 +182,8 @@ class Upload(models.Model):
     task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True)
     dataset = models.ForeignKey(Dataset, on_delete=models.SET_NULL, null=True)
     last_edit_date = models.CharField(max_length=150)
-    display_name = models.TextField(default="")
-    description = models.TextField(default="")
+    display_name = models.TextField(default="default upload")
+    description = models.TextField(default="description missing")
     paper_link = models.TextField(default="")
     deleted = models.BooleanField(default=False)
 
