@@ -1,17 +1,26 @@
 <template>
+<p> {{ this.upload }} </p>
 <button class="uk-button uk-button-default uk-button-small" :class="{ 'uk-button-primary': !showUploadForm, 'tira-button-selected': showUploadForm}"
     @click="addUpload()">
     Add Uploads <font-awesome-icon icon="fas fa-folder-plus" /></button> 
 
-<button v-for="run_id in filterUploadRuns"
+<!--<button v-for="run_id in filterUploadRuns"
         class="uk-button uk-button-default uk-button-small uk-margin-small-horizontal"
         @click="selectedRunId=run_id ; showUploadForm=true"
         :class="{ 'tira-button-selected': true }">
          {{ run_id }} </button>
+-->
+
+<button v-for="a in this.all_uploadgroups"
+        class="uk-button uk-button-default uk-button-small uk-margin-small-horizontal"
+        @click="uploadgroup=a ;showUploadForm=true"
+        :class="{ 'tira-button-selected': a==uploadgroup }">
+         {{ a.display_name }} </button>
 
 <div class="uk-card uk-card-body uk-card-default uk-card-small">
 <form v-if="showUploadForm" class="upload_form">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf }}">
+    {{ uploadgroup.display_name }}
     <div class="uk-grid-medium" uk-grid>
         <div class="uk-width-1-2">
             <label class="uk-form-label" for="uploadresultsform">Upload Run</label>
@@ -77,14 +86,16 @@ export default {
         ReviewList
     },
     props: ['csrf', 'datasets', 'upload', "taskid", "userid", "running_evaluations"],
-    emits: ['addNotification', 'pollEvaluations', 'removeRun'],
+    emits: ['addNotification', 'pollEvaluations', 'removeRun', 'addUploadgroup'],
     data() {
       return {
         showUploadForm: false,
         uploadDataset: '',
         uploadFormError: '',
         fileHandle: null,
-        uploading: false
+        uploading: false,
+        uploadgroup: null,
+        all_uploadgroups: [{"task_id":"test","vm_id":"test_vm","display_name":"test_display_name"}]
       }
     },
     methods: {
@@ -102,8 +113,15 @@ export default {
         addUpload() {
             this.showUploadForm=true
             this.get(`/task/${this.taskid}/vm/${this.userid}/add_software/upload`).then(message => {
-                this.$emit('addUpload')
-            }).catch(error => {
+                const new_uploadgroup = {"uploadgroup":
+                    {"display_name": message.context.upload.display_name}}
+                this.$emit('addUploadgroup', new_uploadgroup)
+                this.uploadgroup = message.context.upload
+                this.all_uploadgroups.push(this.uploadgroup)
+            //then(message => {
+            //    this.$emit('addUpload')
+            })
+            .catch(error => {
                 this.$emit('addNotification', 'error', error.message)
             })
         },
@@ -153,7 +171,7 @@ export default {
         },
         filterUploadRuns() {
             return this.upload.runs.filter(k => !k.is_evaluation).map(k => {
-                return [k.run_id]
+                return [k.display_name]
             })
         }
     },
